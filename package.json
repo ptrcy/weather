@@ -1,0 +1,25 @@
+{
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "SkyCast Weather Analytics - Compare weather forecasts across cities",
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "dev": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptrcy/weather.git"
+  },
+  "keywords": ["weather", "forecast", "tailwindcss"],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ptrcy/weather/issues"
+  },
+  "homepage": "https://github.com/ptrcy/weather#readme",
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "tailwindcss": "^3.4.19"
+  }
+}

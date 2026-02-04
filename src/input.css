@@ -1,5 +1,11 @@
-/* SkyCast Weather - Minimal CSS overrides */
-/* Most styling is handled by Tailwind CSS via CDN */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols font settings */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
 
 /* Smooth touch scrolling for mobile */
 .overflow-x-auto {
