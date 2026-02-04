@@ -59,7 +59,8 @@
           <!-- Page Heading -->
           <div class="flex flex-col sm:flex-row sm:flex-wrap justify-between items-start sm:items-end gap-4 mb-6">
             <div class="flex flex-col gap-2">
-              <p class="text-[#111418] dark:text-white text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+              <p
+                class="text-[#111418] dark:text-white text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
                 Weather Comparison
               </p>
               <p class="text-[#617589] dark:text-gray-400 text-sm md:text-base font-normal leading-normal">
@@ -103,8 +104,13 @@
               </div>
             </div>
           </div>
-          <!-- Comparison Table -->
-          <div class="w-full">
+          <!-- Mobile Card View -->
+          <div id="mobileCards" class="flex flex-col gap-4 md:hidden w-full">
+            <!-- Cards injected here -->
+          </div>
+
+          <!-- Comparison Table (Desktop) -->
+          <div class="w-full hidden md:block">
             <div
               class="overflow-x-auto rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
               <table class="w-full text-left border-collapse min-w-[800px]">
@@ -123,11 +129,12 @@
                 </tbody>
               </table>
             </div>
-                      </div>
+          </div>
           <!-- Chart Section -->
           <div class="mt-6 md:mt-8 mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-              <h2 class="text-[#111418] dark:text-white text-lg md:text-[22px] font-bold leading-tight tracking-[-0.015em]">
+              <h2
+                class="text-[#111418] dark:text-white text-lg md:text-[22px] font-bold leading-tight tracking-[-0.015em]">
                 Forecast Trends</h2>
               <div id="chartToggle" class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-lg">
                 <button data-mode="max"
@@ -182,7 +189,8 @@
           </div>
         </div>
       </main>
-      <footer class="border-t border-[#dbe0e6] dark:border-gray-800 py-6 md:py-10 px-4 md:px-10 bg-white dark:bg-background-dark">
+      <footer
+        class="border-t border-[#dbe0e6] dark:border-gray-800 py-6 md:py-10 px-4 md:px-10 bg-white dark:bg-background-dark">
         <div class="max-w-[1200px] mx-auto flex flex-col items-center gap-4 text-center">
           <div class="flex items-center gap-2 text-primary opacity-60">
             <span class="material-symbols-outlined">wb_sunny</span>

@@ -17,6 +17,12 @@ const CONFIG = {
   toast: {
     durationMs: 4000,
   },
+  chart: {
+    colors: [
+      '#3b82f6', '#ef4444', '#10b981', '#f59e0b',
+      '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+    ],
+  },
 };
 
 // =============================================================================
@@ -30,6 +36,7 @@ const clearAllBtn = document.getElementById("clearAll");
 const rangeToggle = document.getElementById("rangeToggle");
 const dailyHead = document.getElementById("dailyHead");
 const dailyBody = document.getElementById("dailyBody");
+const mobileCards = document.getElementById("mobileCards");
 const detailedAnalytics = document.getElementById("detailedAnalytics");
 const chartToggle = document.getElementById("chartToggle");
 
@@ -76,10 +83,7 @@ let chartInstance = null;
 let currentChartMode = 'max';
 let searchDebounceTimer = null;
 
-const CHART_COLORS = [
-  '#3b82f6', '#ef4444', '#10b981', '#f59e0b',
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
-];
+const CHART_COLORS = CONFIG.chart.colors;
 
 // =============================================================================
 // Toast Notifications
@@ -426,7 +430,7 @@ function renderChart() {
   cities.forEach((city, index) => {
     if (!city.weather || !city.weather.daily) return;
 
-    const color = CHART_COLORS[index % CHART_COLORS.length];
+    const color = CONFIG.chart.colors[index % CONFIG.chart.colors.length];
     const values = city.weather.daily[config.key] || [];
 
     datasets.push({
@@ -579,11 +583,92 @@ function renderDailyTable() {
   });
 
   renderDetailedAnalytics();
+  renderMobileCards();
   try {
     renderChart();
   } catch (e) {
     console.error("Chart render error:", e);
   }
+}
+
+function renderMobileCards() {
+  mobileCards.innerHTML = "";
+
+  if (!cities.length) {
+    mobileCards.innerHTML = `
+      <div class="p-8 text-center text-[#617589] dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm">
+        <div class="flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-4xl opacity-50">playlist_add</span>
+          <p>Search and add cities to compare forecasts</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const reference = cities.find((city) => city.weather?.daily?.time?.length);
+  const dates = reference?.weather?.daily?.time?.slice(0, selectedRange) || [];
+
+  cities.forEach((city) => {
+    const card = document.createElement("div");
+    card.className = "bg-white dark:bg-gray-800 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm p-4 animate-fade-in";
+
+    // Header
+    const region = getRegionLabel(city);
+    const currentInfo = weatherCodeMap.get(city.weather?.weatherCode) || { icon: "cloud" };
+    const currentTemp = formatTempShort(city.weather?.temperature);
+    const weatherColor = getColorClass(city.weather?.weatherCode);
+
+    let dailyHtml = "";
+    if (city.weather?.daily) {
+      for (let i = 0; i < selectedRange; i++) {
+        const date = dates[i];
+        const max = Math.round(city.weather.daily.max[i]);
+        const min = Math.round(city.weather.daily.min[i]);
+        const prob = (city.weather.daily.precipProb && city.weather.daily.precipProb[i]) || 0;
+        const code = (city.weather.daily.codes && city.weather.daily.codes[i]) || 0;
+        const icon = getIconClass(code);
+        const colorClass = getColorClass(code);
+        const dayLabel = formatDateLabel(date); // e.g. "Mon"
+
+        dailyHtml += `
+          <div class="flex flex-col items-center gap-1 min-w-[60px] p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <span class="text-xs font-bold text-[#617589] dark:text-gray-400">${dayLabel}</span>
+            <span class="material-symbols-outlined ${colorClass} text-xl">${icon}</span>
+            <span class="text-xs font-bold text-[#111418] dark:text-white">${max}°</span>
+            <span class="text-[10px] text-gray-500 dark:text-gray-400">${min}°</span>
+            ${prob > 0 ? `<span class="text-[10px] text-blue-500 font-bold">${prob}%</span>` : ''}
+          </div>
+        `;
+      }
+    }
+
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-lg font-bold text-[#111418] dark:text-white leading-tight">${city.name}</h3>
+          <p class="text-xs text-[#617589] dark:text-gray-400">${region}</p>
+        </div>
+        <button class="text-red-400 hover:text-red-500 p-1" data-action="remove-city" data-city-id="${city.id}">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <span class="material-symbols-outlined text-4xl ${weatherColor}">${currentInfo.icon}</span>
+        <div>
+          <span class="text-3xl font-black text-[#111418] dark:text-white">${currentTemp}</span>
+          <p class="text-sm text-[#617589] dark:text-gray-400 capitalize">${currentInfo.label}</p>
+        </div>
+      </div>
+
+      <div class="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4 scrollbar-hide">
+        ${dailyHtml}
+      </div>
+    `;
+
+    mobileCards.appendChild(card);
+  });
 }
 
 function renderDetailedAnalytics() {
