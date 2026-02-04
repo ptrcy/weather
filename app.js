@@ -490,7 +490,7 @@ function renderRangeToggle() {
 }
 
 function renderDailyTable() {
-  dailyHead.innerHTML = '<th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[200px]">City</th><th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[120px]">Current</th>';
+  dailyHead.innerHTML = '<th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[200px] sticky left-0 z-10 bg-gray-50 dark:bg-gray-800">City</th><th class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[120px]">Current</th>';
   dailyBody.innerHTML = "";
 
   if (!cities.length) {
@@ -523,7 +523,7 @@ function renderDailyTable() {
     row.className = "border-t border-[#dbe0e6] dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors group";
 
     const nameCell = document.createElement("td");
-    nameCell.className = "px-6 py-5";
+    nameCell.className = "px-6 py-5 sticky left-0 z-10 bg-white dark:bg-background-dark";
     nameCell.innerHTML = `
       <div class="flex flex-col">
         <span class="text-[#111418] dark:text-white font-bold text-lg flex items-center gap-2">

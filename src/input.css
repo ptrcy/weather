@@ -12,6 +12,24 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Sticky column shadow for horizontal scroll indication */
+td.sticky::after,
+th.sticky::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
+  pointer-events: none;
+}
+
+.dark td.sticky::after,
+.dark th.sticky::after {
+  background: linear-gradient(to right, rgba(0,0,0,0.3), transparent);
+}
+
 /* Loader animation for search */
 .loader {
   border: 2px solid #f3f3f3;
