@@ -148,10 +148,10 @@
             </div>
           </div>
           <!-- Comparison Table -->
-          <div class="@container w-full">
+          <div class="w-full">
             <div
-              class="flex overflow-hidden rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
-              <table class="flex-1 w-full text-left border-collapse">
+              class="overflow-x-auto rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+              <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr id="dailyHead"
                     class="bg-gray-50 dark:bg-gray-800/50 border-b border-[#dbe0e6] dark:border-gray-700">
@@ -167,24 +167,7 @@
                 </tbody>
               </table>
             </div>
-            <style>
-              @container(max-width:1024px) {
-
-                th:nth-child(n + 7),
-                td:nth-child(n + 7) {
-                  display: none;
-                }
-              }
-
-              @container(max-width:768px) {
-
-                th:nth-child(n + 5),
-                td:nth-child(n + 5) {
-                  display: none;
-                }
-              }
-            </style>
-          </div>
+                      </div>
           <!-- Chart Section -->
           <div class="mt-8 mb-8">
             <div class="flex items-center justify-between mb-4">

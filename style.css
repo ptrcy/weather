@@ -1,6 +1,11 @@
 /* SkyCast Weather - Minimal CSS overrides */
 /* Most styling is handled by Tailwind CSS via CDN */
 
+/* Smooth touch scrolling for mobile */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Loader animation for search */
 .loader {
   border: 2px solid #f3f3f3;
