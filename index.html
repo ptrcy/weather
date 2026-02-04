@@ -35,30 +35,10 @@
       },
     };
   </script>
+  <link href="style.css" rel="stylesheet" />
   <style>
     .material-symbols-outlined {
       font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-    }
-
-    /* Custom loader for search results */
-    .loader {
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #3498db;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
     }
   </style>
 </head>
@@ -210,19 +190,15 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-[#111418] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
                 Forecast Trends</h2>
-              <div class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-lg">
-                <button id="btn-chart-max"
-                  class="px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-gray-700 text-[#111418] dark:text-white shadow-sm transition-all"
-                  onclick="setChartMode('max')">Max Temp</button>
-                <button id="btn-chart-min"
-                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
-                  onclick="setChartMode('min')">Min Temp</button>
-                <button id="btn-chart-rain"
-                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
-                  onclick="setChartMode('rain')">Rain</button>
-                <button id="btn-chart-wind"
-                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
-                  onclick="setChartMode('wind')">Wind</button>
+              <div id="chartToggle" class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-lg">
+                <button data-mode="max"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-gray-700 text-[#111418] dark:text-white shadow-sm transition-all">Max</button>
+                <button data-mode="min"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all">Min</button>
+                <button data-mode="rain"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all">Rain</button>
+                <button data-mode="wind"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all">Wind</button>
               </div>
             </div>
             <div
