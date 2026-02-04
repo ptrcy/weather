@@ -10,7 +10,9 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: SkyCast weather comparison app\n\nStatic frontend application for comparing weather forecasts across cities.\nUses Open-Meteo API for geocoding and weather data.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push:*)",
       "mcp__chrome-devtools__wait_for",
-      "mcp__chrome-devtools__click"
+      "mcp__chrome-devtools__click",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
