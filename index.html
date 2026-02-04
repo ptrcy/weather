@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>SkyCast Weather Analytics</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#137fec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            display: ["Space Grotesk"],
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+
+    /* Custom loader for search results */
+    .loader {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #3498db;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white transition-colors duration-200">
+  <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+      <!-- Top Navigation Bar -->
+      <header
+        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dbe0e6] dark:border-gray-800 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+        <div class="flex items-center gap-8">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="size-6">
+              <span class="material-symbols-outlined text-3xl">wb_sunny</span>
+            </div>
+            <h2 class="text-[#111418] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">
+              SkyCast
+            </h2>
+          </div>
+
+          <form id="addCityForm" class="flex flex-col min-w-40 h-10 max-w-64 relative">
+            <div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden">
+              <div
+                class="text-[#617589] dark:text-gray-400 flex border-none bg-background-light dark:bg-gray-800 items-center justify-center pl-4">
+                <span class="material-symbols-outlined">search</span>
+              </div>
+              <input id="cityInput"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-[#111418] dark:text-white focus:outline-0 focus:ring-0 border-none bg-background-light dark:bg-gray-800 placeholder:text-[#617589] dark:placeholder:text-gray-500 px-4 pl-2 text-base font-normal leading-normal"
+                placeholder="Search for cities..." value="" autocomplete="off" />
+            </div>
+            <!-- Search Results Dropdown -->
+            <div id="searchResults"
+              class="absolute top-12 left-0 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 overflow-hidden flex flex-col gap-1">
+            </div>
+          </form>
+
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+          <div class="flex items-center gap-9">
+            <a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              href="#">Dashboard</a>
+            <a class="text-primary text-sm font-medium leading-normal" href="#">Comparison</a>
+            <a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              href="#">Maps</a>
+            <a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              href="#">Alerts</a>
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
+              <span class="truncate">Add Forecast</span>
+            </button>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20"
+              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmvgEsCbgcDSqZdBgOQMmgF9ah3dOHKxCBar87lV3G7xNk0VpKWAAsMcZjM472vG9fmf7SbAElOVmYccC0A5gGWCVxt42Xak186OKgh9eRsuBgXDtaOXsp2Rq9M3DKeEF7HtSONg7JJb3wW8l6fJy7YwF4ugBXuqcY0BrfCkxzhMCjF3d0HSU6SY9rMe_LCnqKbZ8aVwUoV8ro8hsP4gETNDJToO4Fksi1YUAjzRhR6a87oritBb2mveCeiE-YSC7ZJN8d0ceoinHm");'>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="flex flex-1 justify-center py-8">
+        <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 px-4 md:px-10">
+          <!-- Page Heading -->
+          <div class="flex flex-wrap justify-between items-end gap-3 mb-6">
+            <div class="flex min-w-72 flex-col gap-2">
+              <p class="text-[#111418] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                Weather Comparison
+              </p>
+              <p class="text-[#617589] dark:text-gray-400 text-base font-normal leading-normal">
+                Analyze and compare forecasts across your selected global cities
+              </p>
+            </div>
+            <div class="flex gap-3">
+              <button id="refreshAll"
+                class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-gray-800 border border-[#dbe0e6] dark:border-gray-700 text-[#111418] dark:text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-50">
+                <span class="material-symbols-outlined mr-2 text-lg">refresh</span>
+                <span class="truncate">Refresh</span>
+              </button>
+              <button id="clearAll"
+                class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
+                <span class="material-symbols-outlined mr-2 text-lg">delete_sweep</span>
+                <span class="truncate">Clear</span>
+              </button>
+            </div>
+          </div>
+          <!-- Forecast Toggle and Metrics Header -->
+          <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div id="rangeToggle" class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-xl w-full md:w-auto">
+              <label
+                class="flex cursor-pointer h-10 grow md:min-w-[120px] items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-sm has-[:checked]:text-[#111418] dark:has-[:checked]:text-white text-[#617589] dark:text-gray-400 text-sm font-bold transition-all">
+                <span class="truncate uppercase tracking-wider">7 Days</span>
+                <input checked="" class="hidden" name="timeframe" type="radio" data-range="7" value="7 Days" />
+              </label>
+              <label
+                class="flex cursor-pointer h-10 grow md:min-w-[120px] items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-sm has-[:checked]:text-[#111418] dark:has-[:checked]:text-white text-[#617589] dark:text-gray-400 text-sm font-bold transition-all">
+                <span class="truncate uppercase tracking-wider">14 Days</span>
+                <input class="hidden" name="timeframe" type="radio" data-range="14" value="14 Days" />
+              </label>
+            </div>
+            <div class="flex items-center gap-4 text-[#617589] dark:text-gray-400">
+              <span class="text-xs font-semibold uppercase tracking-widest">Units:</span>
+              <div class="flex gap-2">
+                <button class="size-8 rounded-full border border-primary bg-primary/10 text-primary text-xs font-bold">
+                  °C
+                </button>
+                <!-- Future feature: °F -->
+              </div>
+            </div>
+          </div>
+          <!-- Comparison Table -->
+          <div class="@container w-full">
+            <div
+              class="flex overflow-hidden rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+              <table class="flex-1 w-full text-left border-collapse">
+                <thead>
+                  <tr id="dailyHead"
+                    class="bg-gray-50 dark:bg-gray-800/50 border-b border-[#dbe0e6] dark:border-gray-700">
+                    <th
+                      class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[200px]">
+                      City
+                    </th>
+                    <!-- Dates will be injected here -->
+                  </tr>
+                </thead>
+                <tbody id="dailyBody">
+                  <!-- Rows will be injected here -->
+                </tbody>
+              </table>
+            </div>
+            <style>
+              @container(max-width:1024px) {
+
+                th:nth-child(n + 7),
+                td:nth-child(n + 7) {
+                  display: none;
+                }
+              }
+
+              @container(max-width:768px) {
+
+                th:nth-child(n + 5),
+                td:nth-child(n + 5) {
+                  display: none;
+                }
+              }
+            </style>
+          </div>
+          <!-- Chart Section -->
+          <div class="mt-8 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-[#111418] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
+                Forecast Trends</h2>
+              <div class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-lg">
+                <button id="btn-chart-max"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-gray-700 text-[#111418] dark:text-white shadow-sm transition-all"
+                  onclick="setChartMode('max')">Max Temp</button>
+                <button id="btn-chart-min"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
+                  onclick="setChartMode('min')">Min Temp</button>
+                <button id="btn-chart-rain"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
+                  onclick="setChartMode('rain')">Rain</button>
+                <button id="btn-chart-wind"
+                  class="px-4 py-1.5 rounded-md text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all"
+                  onclick="setChartMode('wind')">Wind</button>
+              </div>
+            </div>
+            <div
+              class="p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+              <canvas id="weatherChart" class="w-full max-h-[400px]"></canvas>
+            </div>
+          </div>
+
+          <!-- Detailed Metrics Section -->
+          <div class="mt-12">
+            <h2 class="text-[#111418] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
+              Detailed Analytics
+            </h2>
+            <div id="detailedAnalytics" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Card 2: Wind Speed -->
+              <div
+                class="flex flex-col gap-3 p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <p class="text-[#111418] dark:text-white font-bold">
+                    Average Wind Speeds
+                  </p>
+                  <span class="material-symbols-outlined text-primary">air</span>
+                </div>
+                <div class="flex-1 flex flex-col justify-center gap-4">
+                  <p class="text-sm text-gray-400">Loading data...</p>
+                </div>
+              </div>
+              <!-- Card 3: UV Index -->
+              <div
+                class="flex flex-col gap-3 p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <p class="text-[#111418] dark:text-white font-bold">
+                    Max UV Exposure
+                  </p>
+                  <span class="material-symbols-outlined text-primary">light_mode</span>
+                </div>
+                <div class="flex-1 flex flex-col justify-center gap-4">
+                  <p class="text-sm text-gray-400">Loading data...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="border-t border-[#dbe0e6] dark:border-gray-800 py-10 px-10 bg-white dark:bg-background-dark">
+        <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="flex items-center gap-2 text-primary opacity-60">
+            <span class="material-symbols-outlined">wb_sunny</span>
+            <span class="font-bold text-lg">SkyCast</span>
+          </div>
+          <p class="text-sm text-[#617589] dark:text-gray-400">
+            © 2024 SkyCast Weather Analytics. All rights reserved.
+          </p>
+          <div class="flex gap-6">
+            <a class="text-sm text-[#617589] dark:text-gray-400 hover:text-primary" href="#">Privacy Policy</a>
+            <a class="text-sm text-[#617589] dark:text-gray-400 hover:text-primary" href="#">Terms of Service</a>
+            <a class="text-sm text-[#617589] dark:text-gray-400 hover:text-primary" href="#">API Documentation</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <script src="app.js?v=5"></script>
+</body>
+
+</html>
