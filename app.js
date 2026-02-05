@@ -674,38 +674,90 @@ function renderMobileCards() {
 function renderDetailedAnalytics() {
   detailedAnalytics.innerHTML = "";
 
+  // Helper to calculate average of an array
+  const calcAvg = (arr, range) => {
+    if (!arr || arr.length === 0) return 0;
+    const slice = arr.slice(0, range);
+    return slice.reduce((a, b) => a + b, 0) / slice.length;
+  };
+
+  const selectedRange = document.querySelector('#rangeToggle input:checked')?.dataset.range || 7;
+
+  // Helper to create a bar card
+  const createBarCard = (title, icon, unit, getData, maxScale, colorClass = "bg-primary") => {
+    const card = document.createElement("div");
+    card.className = "flex flex-col gap-3 p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm";
+
+    let content = "";
+    if (cities.length > 0) {
+      cities.forEach(city => {
+        const value = getData(city);
+        const pct = Math.min((Math.abs(value) / maxScale) * 100, 100);
+        content += `
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-[#617589]">
+              <span>${city.name}</span>
+              <span>${value}${unit}</span>
+            </div>
+            <div class="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div class="h-full ${colorClass}" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      content = `<p class="text-sm text-gray-400 text-center py-4">Add cities to see comparison</p>`;
+    }
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <p class="text-[#111418] dark:text-white font-bold">${title}</p>
+        <span class="material-symbols-outlined text-primary">${icon}</span>
+      </div>
+      <div class="flex-1 flex flex-col justify-center gap-4 mt-2">${content}</div>
+    `;
+    return card;
+  };
+
+  // Max Temperature Card
+  const maxTempCard = createBarCard(
+    "Average Max Temperature",
+    "thermostat",
+    "°C",
+    city => Math.round(calcAvg(city.weather?.daily?.max, selectedRange)),
+    50,
+    "bg-orange-500"
+  );
+
+  // Min Temperature Card
+  const minTempCard = createBarCard(
+    "Average Min Temperature",
+    "ac_unit",
+    "°C",
+    city => Math.round(calcAvg(city.weather?.daily?.min, selectedRange)),
+    40,
+    "bg-blue-500"
+  );
+
+  // Rain Probability Card
+  const rainCard = createBarCard(
+    "Average Rain Probability",
+    "water_drop",
+    "%",
+    city => Math.round(calcAvg(city.weather?.daily?.precipProb, selectedRange)),
+    100,
+    "bg-cyan-500"
+  );
+
   // Wind Card
-  const windCard = document.createElement("div");
-  windCard.className = "flex flex-col gap-3 p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm";
-
-  let windContent = "";
-  if (cities.length > 0) {
-    cities.forEach(city => {
-      const wind = (city.weather && city.weather.windSpeed) || 0;
-      const pct = Math.min((wind / 50) * 100, 100);
-      windContent += `
-        <div class="space-y-2">
-          <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-[#617589]">
-            <span>${city.name}</span>
-            <span>${wind} km/h</span>
-          </div>
-          <div class="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div class="h-full bg-primary" style="width: ${pct}%"></div>
-          </div>
-        </div>
-      `;
-    });
-  } else {
-    windContent = `<p class="text-sm text-gray-400 text-center py-4">Add cities to see wind comparison</p>`;
-  }
-
-  windCard.innerHTML = `
-    <div class="flex items-center justify-between">
-      <p class="text-[#111418] dark:text-white font-bold">Average Wind Speeds</p>
-      <span class="material-symbols-outlined text-primary">air</span>
-    </div>
-    <div class="flex-1 flex flex-col justify-center gap-4 mt-2">${windContent}</div>
-  `;
+  const windCard = createBarCard(
+    "Average Wind Speed",
+    "air",
+    " km/h",
+    city => (city.weather && city.weather.windSpeed) || 0,
+    50,
+    "bg-primary"
+  );
 
   // UV Card
   const uvCard = document.createElement("div");
@@ -763,6 +815,9 @@ function renderDetailedAnalytics() {
     </div>
   `;
 
+  detailedAnalytics.appendChild(maxTempCard);
+  detailedAnalytics.appendChild(minTempCard);
+  detailedAnalytics.appendChild(rainCard);
   detailedAnalytics.appendChild(windCard);
   detailedAnalytics.appendChild(uvCard);
 }
