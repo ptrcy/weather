@@ -760,60 +760,14 @@ function renderDetailedAnalytics() {
   );
 
   // UV Card
-  const uvCard = document.createElement("div");
-  uvCard.className = "flex flex-col gap-3 p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm";
-
-  let maxUvCity = null;
-  let maxUvVal = -1;
-
-  if (cities.length > 0) {
-    cities.forEach(city => {
-      const dailyUV = city.weather?.daily?.uv || [];
-      const uv = dailyUV.length > 0 ? dailyUV[0] : 0;
-      if (uv > maxUvVal) {
-        maxUvVal = uv;
-        maxUvCity = city;
-      }
-    });
-  }
-
-  if (maxUvVal === -1) maxUvVal = 0;
-
-  const r = 56;
-  const circumference = 2 * Math.PI * r;
-  const uvMaxScale = 11;
-  const uvPct = Math.min(maxUvVal / uvMaxScale, 1);
-  const offset = circumference - (uvPct * circumference);
-
-  let uvColor = "text-green-500";
-  let riskLabel = "Low";
-  if (maxUvVal > 2) { uvColor = "text-yellow-500"; riskLabel = "Moderate"; }
-  if (maxUvVal > 5) { uvColor = "text-orange-500"; riskLabel = "High"; }
-  if (maxUvVal > 7) { uvColor = "text-red-500"; riskLabel = "Very High"; }
-  if (maxUvVal > 10) { uvColor = "text-purple-500"; riskLabel = "Extreme"; }
-
-  const cityName = maxUvCity ? maxUvCity.name : "--";
-  const desc = maxUvCity ? `Peak solar radiation in ${cityName} today.` : "Add cities to see UV exposure.";
-
-  uvCard.innerHTML = `
-    <div class="flex items-center justify-between">
-      <p class="text-[#111418] dark:text-white font-bold">Max UV Exposure</p>
-      <span class="material-symbols-outlined text-primary">light_mode</span>
-    </div>
-    <div class="flex-1 flex flex-col items-center justify-center">
-      <div class="relative flex items-center justify-center">
-        <svg class="w-32 h-32 transform -rotate-90">
-          <circle class="text-gray-100 dark:text-gray-700" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8"></circle>
-          <circle class="${uvColor} transition-all duration-1000 ease-out" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" stroke-width="8"></circle>
-        </svg>
-        <div class="absolute inset-0 flex flex-col items-center justify-center">
-          <span class="text-3xl font-black text-[#111418] dark:text-white">${maxUvVal}</span>
-          <span class="text-[10px] uppercase font-bold text-[#617589]">${riskLabel}</span>
-        </div>
-      </div>
-      <p class="mt-4 text-center text-xs text-[#617589] dark:text-gray-400 px-4">${desc}</p>
-    </div>
-  `;
+  const uvCard = createBarCard(
+    "Average UV Index",
+    "light_mode",
+    "",
+    city => Math.round(calcAvg(city.weather?.daily?.uv, selectedRange) * 10) / 10,
+    11,
+    "bg-yellow-500"
+  );
 
   detailedAnalytics.appendChild(maxTempCard);
   detailedAnalytics.appendChild(minTempCard);
