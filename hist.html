@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>SkyCast Weather Analytics</title>
+  <title>SkyCast - Historical Weather</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'><circle cx='12' cy='12' r='5'/><path d='M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round'/></svg>">
   <style>body { opacity: 0; } body.loaded { opacity: 1; transition: opacity 0.1s; }</style>
 
@@ -16,9 +16,9 @@
   <!-- Critical CSS first -->
   <link href="dist/output.css" rel="stylesheet" />
 
-  <!-- Fonts with optimized loading -->
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet" />
+  <!-- Fonts with optimized loading - non-blocking -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 
   <!-- Defer Chart.js - not needed for initial render -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
@@ -60,9 +60,9 @@
 
         <!-- Desktop nav - hidden on mobile -->
         <div class="hidden lg:flex items-center gap-6">
-          <a class="text-primary text-sm font-medium leading-normal" href="index.html">Forecast</a>
           <a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
-            href="hist.html">Historical</a>
+            href="index.html">Forecast</a>
+          <a class="text-primary text-sm font-medium leading-normal" href="hist.html">Historical</a>
         </div>
       </header>
       <main class="flex flex-1 justify-center py-8">
@@ -72,10 +72,10 @@
             <div class="flex flex-col gap-2">
               <p
                 class="text-[#111418] dark:text-white text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                Weather Comparison
+                Historical Weather
               </p>
               <p class="text-[#617589] dark:text-gray-400 text-sm md:text-base font-normal leading-normal">
-                Compare forecasts across your selected cities
+                Compare historical weather data across cities
               </p>
             </div>
             <div class="flex gap-2 md:gap-3">
@@ -91,62 +91,51 @@
               </button>
             </div>
           </div>
-          <!-- Forecast Toggle and Metrics Header -->
-          <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <div id="rangeToggle" class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-xl w-full md:w-auto">
-              <label
-                class="flex cursor-pointer h-10 grow md:min-w-[120px] items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-sm has-[:checked]:text-[#111418] dark:has-[:checked]:text-white text-[#617589] dark:text-gray-400 text-sm font-bold transition-all">
-                <span class="truncate uppercase tracking-wider">7 Days</span>
-                <input checked="" class="hidden" name="timeframe" type="radio" data-range="7" value="7 Days" />
-              </label>
-              <label
-                class="flex cursor-pointer h-10 grow md:min-w-[120px] items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700 has-[:checked]:shadow-sm has-[:checked]:text-[#111418] dark:has-[:checked]:text-white text-[#617589] dark:text-gray-400 text-sm font-bold transition-all">
-                <span class="truncate uppercase tracking-wider">14 Days</span>
-                <input class="hidden" name="timeframe" type="radio" data-range="14" value="14 Days" />
-              </label>
-            </div>
-            <div class="flex items-center gap-4 text-[#617589] dark:text-gray-400">
-              <span class="text-xs font-semibold uppercase tracking-widest">Units:</span>
-              <div class="flex gap-2">
-                <button class="size-8 rounded-full border border-primary bg-primary/10 text-primary text-xs font-bold">
-                  °C
-                </button>
-                <!-- Future feature: °F -->
+
+          <!-- Date Range Selection -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl border border-[#dbe0e6] dark:border-gray-700 shadow-sm p-4 md:p-6 mb-6">
+            <h3 class="text-[#111418] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">calendar_month</span>
+              Date Range
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <label for="startDate" class="text-sm font-semibold text-[#617589] dark:text-gray-400 uppercase tracking-wider">
+                  Start Date (DD/MM/YYYY)
+                </label>
+                <input type="date" id="startDate"
+                  class="w-full px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#111418] dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="numDays" class="text-sm font-semibold text-[#617589] dark:text-gray-400 uppercase tracking-wider">
+                  Number of Days
+                </label>
+                <input type="number" id="numDays" min="1" max="365" value="30"
+                  class="w-full px-4 py-2 rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#111418] dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <p class="text-xs text-gray-500">Maximum 365 days</p>
               </div>
             </div>
-          </div>
-          <!-- Mobile Card View -->
-          <div id="mobileCards" class="flex flex-col gap-4 md:hidden w-full">
-            <!-- Cards injected here -->
+            <div id="dateRangePreview" class="mt-3 text-sm text-[#617589] dark:text-gray-400">
+              <!-- Date range preview will be shown here -->
+            </div>
+            <button id="fetchHistorical"
+              class="mt-4 flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+              <span class="material-symbols-outlined mr-2">history</span>
+              Fetch Historical Data
+            </button>
           </div>
 
-          <!-- Comparison Table (Desktop) -->
-          <div class="w-full hidden md:block">
-            <div
-              class="overflow-x-auto rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
-              <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                  <tr id="dailyHead"
-                    class="bg-gray-50 dark:bg-gray-800/50 border-b border-[#dbe0e6] dark:border-gray-700">
-                    <th
-                      class="px-6 py-4 text-[#111418] dark:text-white text-sm font-bold uppercase tracking-wider w-[200px] sticky left-0 z-10 bg-gray-50 dark:bg-gray-800/95">
-                      City
-                    </th>
-                    <!-- Dates will be injected here -->
-                  </tr>
-                </thead>
-                <tbody id="dailyBody">
-                  <!-- Rows will be injected here -->
-                </tbody>
-              </table>
-            </div>
+          <!-- Selected Cities -->
+          <div id="selectedCities" class="flex flex-wrap gap-2 mb-6">
+            <!-- City tags will be injected here -->
           </div>
+
           <!-- Chart Section -->
           <div class="mt-6 md:mt-8 mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
               <h2
                 class="text-[#111418] dark:text-white text-lg md:text-[22px] font-bold leading-tight tracking-[-0.015em]">
-                Forecast Trends</h2>
+                Historical Trends</h2>
               <div id="chartToggle" class="flex bg-[#f0f2f4] dark:bg-gray-800 p-1 rounded-lg">
                 <button data-mode="max"
                   class="px-2 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-bold bg-white dark:bg-gray-700 text-[#111418] dark:text-white shadow-sm transition-all">Max</button>
@@ -158,8 +147,7 @@
                   class="px-2 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-bold text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white transition-all">Wind</button>
               </div>
             </div>
-            <div
-              class="p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+            <div class="p-4 rounded-xl border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm canvas-container">
               <canvas id="weatherChart" class="w-full max-h-[400px]"></canvas>
             </div>
           </div>
@@ -170,7 +158,7 @@
               Detailed Analytics
             </h2>
             <div id="detailedAnalytics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <!-- Cards are dynamically generated by app.js -->
+              <!-- Cards are dynamically generated by hist.js -->
             </div>
           </div>
         </div>
@@ -194,7 +182,7 @@
       </footer>
     </div>
   </div>
-  <script src="app.js?v=6" defer></script>
+  <script src="hist.js"></script>
 </body>
 
 </html>
