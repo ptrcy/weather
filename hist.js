@@ -210,7 +210,29 @@ function formatDateDisplay(dateStr) {
 function updateDateRangePreview() {
   const startDate = dateRange.start;
   const endDate = calculateEndDate();
-  dateRangePreview.textContent = `${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}`;
+  dateRangePreview.textContent = `${formatDateDisplay(startDate)} \u2013 ${formatDateDisplay(endDate)}`;
+}
+
+// Convert YYYY-MM-DD to DD/MM/YYYY for display
+function isoToDisplay(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// Parse DD/MM/YYYY to YYYY-MM-DD, returns null if invalid
+function parseDisplayDate(text) {
+  const match = text.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (!match) return null;
+  const day = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  const year = parseInt(match[3], 10);
+  if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900) return null;
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+  const mm = String(month).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+  return `${year}-${mm}-${dd}`;
 }
 
 // =============================================================================
@@ -728,11 +750,31 @@ if (chartToggle) {
   });
 }
 
-// Date inputs
-startDateInput.addEventListener("change", (e) => {
-  dateRange.start = e.target.value;
-  saveDateRange();
-  updateDateRangePreview();
+// Date input - parse DD/MM/YYYY free text
+startDateInput.addEventListener("input", (e) => {
+  const val = e.target.value.trim();
+  const iso = parseDisplayDate(val);
+  if (iso) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(iso) > today) {
+      startDateInput.classList.add('border-red-500');
+      startDateInput.classList.remove('border-[#dbe0e6]', 'dark:border-gray-700');
+      dateRangePreview.textContent = 'Date cannot be in the future';
+      return;
+    }
+    startDateInput.classList.remove('border-red-500');
+    startDateInput.classList.add('border-[#dbe0e6]', 'dark:border-gray-700');
+    dateRange.start = iso;
+    saveDateRange();
+    updateDateRangePreview();
+  } else if (val.length >= 8) {
+    startDateInput.classList.add('border-red-500');
+    startDateInput.classList.remove('border-[#dbe0e6]', 'dark:border-gray-700');
+  } else {
+    startDateInput.classList.remove('border-red-500');
+    startDateInput.classList.add('border-[#dbe0e6]', 'dark:border-gray-700');
+  }
 });
 
 numDaysInput.addEventListener("change", (e) => {
@@ -754,10 +796,14 @@ numDaysInput.addEventListener("change", (e) => {
 
 // Fetch historical data button
 fetchHistoricalBtn.addEventListener("click", async () => {
-  if (!dateRange.start) {
-    showToast('Please select a start date', 'error');
+  // Validate the current text in the input
+  const iso = parseDisplayDate(startDateInput.value.trim());
+  if (!iso) {
+    showToast('Please enter a valid date (DD/MM/YYYY)', 'error');
     return;
   }
+  dateRange.start = iso;
+  saveDateRange();
 
   if (!dateRange.numDays || dateRange.numDays < 1) {
     showToast('Please enter number of days', 'error');
@@ -799,13 +845,9 @@ clearAllBtn.addEventListener("click", () => {
 // Initialize
 // =============================================================================
 function init() {
-  // Set date inputs
-  startDateInput.value = dateRange.start;
+  // Set date inputs - display in DD/MM/YYYY format
+  startDateInput.value = isoToDisplay(dateRange.start);
   numDaysInput.value = dateRange.numDays || 30;
-
-  // Set max date to today
-  const today = new Date().toISOString().split('T')[0];
-  startDateInput.max = today;
 
   // Update date range preview
   updateDateRangePreview();
